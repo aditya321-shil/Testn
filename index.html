@@ -1,56 +1,91 @@
-<!doctype html>
-<html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8" />
+  <title>OneSignal Push + Math Test</title>
 
-    <title>FreeXClash - Free Matches & Tournaments | Coming Soon on Play Store</title>
+  <!-- OneSignal SDK -->
+  <script src="https://cdn.onesignal.com/sdks/web/v16/OneSignalSDK.page.js" defer></script>
 
-    <meta name="description" content="FreeXClash is a free gaming tournament app. Join free matches, no deposit required, earn rewards, and play fair. Coming soon on Google Play Store!" />
-    <meta name="author" content="FreeXClash Team" />
-    <meta name="keywords" content="FreeXClash, free gaming tournaments, esports app, no deposit matches, mobile gaming, play and earn, Free Fire matches, fair play gaming" />
+  <script>
+    window.OneSignalDeferred = window.OneSignalDeferred || [];
+    OneSignalDeferred.push(async function(OneSignal) {
+      await OneSignal.init({
+        appId: "0276e733-a4c3-4c91-abc8-07493d1c56c8",
+        safari_web_id: "web.onesignal.auto.145f18a4-510a-4781-b676-50fa3f7fa700",
 
-    <!-- ✅ SEO Essentials -->
-    <meta name="robots" content="index, follow" />
-    <link rel="canonical" href="https://freexclash.vercel.app/" />
-
-    <!-- ✅ Open Graph (Facebook, Discord, WhatsApp preview) -->
-    <meta property="og:title" content="FreeXClash - Free Matches & Tournaments | Coming Soon" />
-    <meta property="og:description" content="Join FreeXClash for free tournaments, no deposit, fair play, and rewards. Coming soon on Play Store!" />
-    <meta property="og:type" content="website" />
-    <meta property="og:url" content="https://freexclash.vercel.app/" />
-    <meta property="og:image" content="https://i.supaimg.com/7b81b7f6-b8e3-4d83-92a3-aeb5cd5d87dc.jpg" />
-
-    <!-- ✅ Twitter Cards -->
-    <meta name="twitter:card" content="summary_large_image" />
-    <meta name="twitter:title" content="FreeXClash - Free Matches & Tournaments" />
-    <meta name="twitter:description" content="Play free matches and tournaments. No deposit, earn rewards, fair play. Coming soon on Play Store!" />
-    <meta name="twitter:image" content="https://i.supaimg.com/7b81b7f6-b8e3-4d83-92a3-aeb5cd5d87dc.jpg" />
-
-    <!-- ✅ Favicon (optional, add your logo path) -->
-    <link rel="icon" href="/favicon.ico" type="image/x-icon" />
-
-    <!-- ✅ Extra SEO Boost (Schema Markup for Google) -->
-    <script type="application/ld+json">
-      {
-        "@context": "https://schema.org",
-        "@type": "SoftwareApplication",
-        "name": "FreeXClash",
-        "operatingSystem": "Android",
-        "applicationCategory": "Game",
-        "description": "Join FreeXClash — free gaming tournaments, no deposit required, earn rewards, and play fair. Coming soon on Play Store!",
-        "image": "https://i.supaimg.com/7b81b7f6-b8e3-4d83-92a3-aeb5cd5d87dc.jpg",
-        "url": "https://freexclash.vercel.app/",
-        "author": {
-          "@type": "Organization",
-          "name": "FreeXClash Team"
+        notifyButton: {
+          enable: true,
         }
-      }
-    </script>
-  </head>
+      });
 
-  <body>
-    <div id="root"></div>
-    <script type="module" src="/src/main.tsx"></script>
-  </body>
+      console.log("OneSignal Initialized!");
+    });
+  </script>
+</head>
+
+<body style="font-family:Arial; padding:30px;">
+
+  <h1>OneSignal Notification + Math Test</h1>
+
+  <button id="enablePush">Enable Push Notification</button>
+
+  <hr>
+
+  <h2>Simple Math Question</h2>
+  <p id="question"></p>
+
+  <input type="number" id="answer" placeholder="Enter answer">
+  <button id="submit">Submit</button>
+
+  <p id="msg"></p>
+
+  <script>
+    // Create simple math question
+    const n1 = Math.floor(Math.random()*10)+1;
+    const n2 = Math.floor(Math.random()*10)+1;
+
+    document.getElementById("question").innerText =
+      `What is ${n1} + ${n2}?`;
+
+    const correct = n1 + n2;
+
+    // Request Notification Permission
+    document.getElementById("enablePush").onclick = async function () {
+      if (window.OneSignal) {
+        await OneSignal.Notifications.requestPermission();
+        alert("Permission requested!");
+      }
+    };
+
+    // Local browser notification
+    function localNotify(title, body) {
+      if (Notification.permission === "granted") {
+        new Notification(title, { body });
+      } else {
+        Notification.requestPermission().then(p => {
+          if (p === "granted") new Notification(title, { body });
+        });
+      }
+    }
+
+    // Check answer
+    document.getElementById("submit").onclick = function () {
+      const ans = Number(document.getElementById("answer").value);
+      const msg = document.getElementById("msg");
+
+      if (ans === correct) {
+        msg.innerText = "Correct! 🎉";
+        msg.style.color = "green";
+
+        // Show immediate local notification
+        localNotify("Correct!", "You solved the math question!");
+      } else {
+        msg.innerText = "Wrong answer. Try again!";
+        msg.style.color = "red";
+      }
+    };
+  </script>
+
+</body>
 </html>
